@@ -1,0 +1,106 @@
+=============== HƯỚNG DẪN ================
+LƯU Ý : Chạy tất cả lệnh git trong màn hình lệnh cmd, powershell,...
+
+1. Tự cài git
+Cài xong -> Khai báo (cmd)
+    git config --global user.name "Tên của bạn"
+    git config --global user.email "[EMAIL_ADDRESS]"
+2. Tạo repo hoặc clone
+    git init (tạo repo mới)
+    git clone <url> (clone repo từ github)  
+
+vd: Mở Folder trên máy muốn chứa dự án.
+    Chuột phải chọn Open in Terminal.
+    git clone https://github.com/username/repo-name.git
+    cd License-plate-recognition  --> để đi vào thư mục dự án.
+
+
+############ Quy trình làm việc ###################
+
+1. Luôn tạo "Nhánh" mới trước khi code
+    git checkout -b <tên-nhánh-mới>
+
+    Truy cập nhánh của bản thân để làm việc tiếp
+        git branch -> ktra nhánh hiện tại
+        git checkout <tên-nhánh-của-bạn> -> chuyển sang nhánh của bạn nếu ở nhánh khác
+2.Lập trình và kiểm tra
+    Cứ code, thêm ảnh, sửa file như bình thường trong VS Code, hay gì đó... 
+    Khi làm xong một phần nhỏ (ví dụ xong hàm tiền xử lý ảnh), hãy lưu lại.
+3. Commmit
+Thực hiện:
+    git status               # Để xem mình đã sửa những file nào (hiện màu đỏ)
+    git add .                # Gom hết các thay đổi vào túi
+    git commit -m "Mo ta ngan gon viec ban vua lam"
+4. Update lên github    
+    git push origin <tên-nhánh>    -> đẩy code lên github vào nhánh làm việc của bạn
+
+
+
+============== Các lệnh git ================
+1. File .gitignore
+    .gitignore là file để git bỏ qua các file không cần thiết, không push lên github(các file, folder chứa dữ liệu lớn, file nhạy cảm, file rác...)
+    Ví dụ: .gitignore
+    *.pyc
+    __pycache__
+    .env
+    venv
+2. Kiểm soát việc thêm File (Add)
+    git add <tên-file> <tên-file> ...         # Thêm file cụ thể
+    git add .                                 # Thêm tất cả các file
+
+3. Tạo nhánh (Branch)
+    git branch <tên-nhánh-mới>                # Tạo nhánh mới
+    git checkout <tên-nhánh-của-bạn>          # Chuyển sang nhánh của bạn
+    git checkout -b <tên-nhánh-mới>           # Tạo nhánh mới và chuyển sang nhánh đó
+
+4. Lưu lại thay đổi (Commit)
+    git status                                # Xem những file đã thay đổi
+    git add .                                 # Thêm tất cả các file đã thay đổi
+    git commit -m "<mô-tả-ngắn-gọn>"          # Lưu lại thay đổi với mô tả
+
+5. Đẩy code lên github (Push)
+    git push origin <tên-nhánh>               # Đẩy code lên github vào nhánh làm việc của bạn
+
+6. Lấy code từ github về máy (Pull)
+    git pull origin <tên-nhánh>               # Lấy code từ github về máy vào nhánh làm việc của bạn
+
+7. Xử lý xung đột (Merge Conflict)
+    Khi git không thể tự gộp code của bạn với code của người khác, nó sẽ báo lỗi xung đột.
+    Lúc này, bạn cần mở file bị lỗi, tìm đến phần có đánh dấu xung đột (thường có dạng <<<<<<< HEAD, =======, >>>>>>>), 
+    chỉnh sửa lại cho đúng, sau đó lưu file và thực hiện lại các lệnh git add, git commit, git push.
+
+8. Xóa nhánh (Delete Branch)
+    git branch -d <tên-nhánh>                # Xóa nhánh cục bộ
+    git push origin --delete <tên-nhánh>      # Xóa nhánh trên github
+
+9. Lịch sử (History)
+    git log                                   # Xem lịch sử commit
+    git log --oneline                         # Xem lịch sử commit ngắn gọn
+    git log --graph                           # Xem lịch sử commit dưới dạng đồ thị
+
+10. Hoàn tác (Undo)
+    git checkout <tên-file>                   # Hoàn tác thay đổi trong file
+    git reset <tên-file>                      # Hoàn tác thay đổi trong file
+    git reset --hard                          # Hoàn tác tất cả thay đổi
+
+11. Tạo và quản lý nhánh (Branch Management)
+    git branch                                # Liệt kê tất cả các nhánh
+    git branch -a                             # Liệt kê tất cả các nhánh (cả cục bộ và từ xa)
+    git branch -r                             # Liệt kê các nhánh từ xa
+    git branch -d <tên-nhánh>                # Xóa nhánh cục bộ
+    git branch -D <tên-nhánh>                # Xóa nhánh cục bộ (ép buộc)
+    git push origin --delete <tên-nhánh>      # Xóa nhánh trên github
+
+12. Gộp nhánh (Merge)
+    git merge <tên-nhánh>                    # Gộp nhánh vào nhánh hiện tại
+    git merge --no-ff <tên-nhánh>             # Gộp nhánh mà không tạo fast-forward
+
+13. Lấy code từ github về máy (Pull)
+    git pull origin <tên-nhánh>               # Lấy code từ github về máy vào nhánh làm việc của bạn
+
+14. Xóa nhánh (Delete Branch)
+    git branch -d <tên-nhánh>                # Xóa nhánh cục bộ
+    git push origin --delete <tên-nhánh>      # Xóa nhánh trên github
+
+
+    
