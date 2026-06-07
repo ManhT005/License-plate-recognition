@@ -5,173 +5,218 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nhận diện biển số xe VN</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg:        #0a0e17;
-      --panel:     #111827;
-      --border:    #1e2d40;
-      --accent:    #00e5ff;
-      --accent2:   #00ff9d;
-      --warn:      #ff4d6d;
-      --text:      #e2e8f0;
-      --muted:     #64748b;
-      --mono:      'Share Tech Mono', monospace;
-      --sans:      'Barlow', sans-serif;
+      --bg-color: #09090e;
+      --panel-bg: rgba(20, 20, 30, 0.5);
+      --panel-border: rgba(255, 255, 255, 0.08);
+      --accent-1: #00f2fe;
+      --accent-2: #4facfe;
+      --accent-3: #f093fb;
+      --accent-4: #f5576c;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --error: #ef4444;
+      --font-sans: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: var(--font-sans);
       min-height: 100vh;
       overflow-x: hidden;
+      position: relative;
     }
 
-    /* ── Grid background ── */
+    /* Ambient Background Glows */
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: -1;
+      animation: float 20s ease-in-out infinite alternate;
+    }
+
     body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(0,229,255,.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,229,255,.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-      z-index: 0;
+      background: radial-gradient(circle, var(--accent-1), var(--accent-2));
+      top: -100px;
+      left: -100px;
     }
 
-    /* ── Glow orbs ── */
     body::after {
-      content: '';
-      position: fixed;
-      top: -200px; left: -200px;
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(0,229,255,.06) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
+      background: radial-gradient(circle, var(--accent-3), var(--accent-4));
+      bottom: -100px;
+      right: -100px;
+      animation-delay: -10s;
     }
 
-    /* ── Layout ── */
+    @keyframes float {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(50px, 50px) scale(1.1); }
+    }
+
+    /* Layout */
     .wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px;
       position: relative;
       z-index: 1;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 24px 60px;
     }
 
-    /* ── Header ── */
+    /* Header */
     header {
-      display: flex;
+      text-align: center;
+      margin-bottom: 50px;
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo-container {
+      display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 16px;
-      padding: 32px 0 40px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 40px;
+      margin-bottom: 16px;
     }
 
     .logo-icon {
-      width: 44px; height: 44px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border-radius: 10px;
-      display: grid; place-items: center;
-      font-size: 20px;
-      flex-shrink: 0;
-      box-shadow: 0 0 20px rgba(0,229,255,.3);
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      font-size: 28px;
+      box-shadow: 0 10px 30px rgba(0, 242, 254, 0.3);
+      color: white;
     }
 
-    .logo-text h1 {
-      font-size: 1.35rem;
+    .title-group h1 {
+      font-size: 2.5rem;
       font-weight: 700;
-      letter-spacing: .5px;
+      letter-spacing: -0.5px;
+      background: linear-gradient(to right, #fff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
       line-height: 1.2;
     }
 
-    .logo-text p {
-      font-family: var(--mono);
-      font-size: .72rem;
-      color: var(--accent);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-top: 2px;
+    .title-group p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      font-weight: 300;
+      letter-spacing: 0.5px;
     }
 
     .badge {
-      margin-left: auto;
-      font-family: var(--mono);
-      font-size: .68rem;
-      color: var(--accent2);
-      border: 1px solid var(--accent2);
-      padding: 4px 10px;
-      border-radius: 4px;
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent-1);
+      background: rgba(0, 242, 254, 0.1);
+      border: 1px solid rgba(0, 242, 254, 0.2);
+      padding: 6px 14px;
+      border-radius: 20px;
       letter-spacing: 1px;
+      text-transform: uppercase;
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.1);
     }
 
-    /* ── Main grid ── */
+    /* Grid Layout */
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 24px;
+      gap: 32px;
     }
 
-    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    @media (max-width: 850px) {
+      .grid { grid-template-columns: 1fr; }
+    }
 
-    /* ── Panel ── */
+    /* Glass Panels */
     .panel {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
+      background: var(--panel-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--panel-border);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .panel:hover {
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .panel-header {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 14px 20px;
-      border-bottom: 1px solid var(--border);
-      font-family: var(--mono);
-      font-size: .75rem;
-      color: var(--muted);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
+      gap: 12px;
+      margin-bottom: 24px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #fff;
     }
 
-    .panel-header .dot {
-      width: 8px; height: 8px;
+    .panel-header i {
+      display: block;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 6px var(--accent);
-      animation: pulse 2s infinite;
+      background: var(--accent-1);
+      box-shadow: 0 0 10px var(--accent-1);
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: .3; }
+    .panel-header.output i {
+      background: var(--accent-3);
+      box-shadow: 0 0 10px var(--accent-3);
     }
 
-    .panel-body {
-      padding: 20px;
-    }
-
-    /* ── Upload zone ── */
+    /* Upload Zone */
     .upload-zone {
-      border: 2px dashed var(--border);
-      border-radius: 10px;
-      padding: 40px 20px;
+      border: 2px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 50px 20px;
       text-align: center;
       cursor: pointer;
-      transition: border-color .2s, background .2s;
+      transition: all 0.3s ease;
       position: relative;
+      background: rgba(255, 255, 255, 0.02);
+      overflow: hidden;
     }
 
-    .upload-zone:hover,
-    .upload-zone.drag-over {
-      border-color: var(--accent);
-      background: rgba(0,229,255,.04);
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: var(--accent-2);
+      background: rgba(79, 172, 254, 0.05);
+      transform: scale(1.02);
     }
 
     .upload-zone input[type="file"] {
@@ -181,257 +226,396 @@
       cursor: pointer;
       width: 100%;
       height: 100%;
+      z-index: 2;
     }
 
     .upload-icon {
-      font-size: 2.5rem;
-      margin-bottom: 12px;
-      display: block;
+      font-size: 3rem;
+      margin-bottom: 16px;
+      display: inline-block;
+      transition: transform 0.3s ease;
     }
 
-    .upload-zone p {
-      color: var(--muted);
-      font-size: .9rem;
-      line-height: 1.6;
+    .upload-zone:hover .upload-icon {
+      transform: translateY(-5px);
     }
 
-    .upload-zone span {
-      color: var(--accent);
+    .upload-zone p.main-text {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .upload-zone p.main-text span {
+      color: var(--accent-2);
       font-weight: 600;
     }
 
-    /* ── Preview ── */
+    .upload-zone p.sub-text {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* Preview Image */
     #preview-wrap {
       display: none;
-      margin-top: 16px;
-      border-radius: 8px;
+      margin-top: 24px;
+      border-radius: 12px;
       overflow: hidden;
-      border: 1px solid var(--border);
+      border: 1px solid var(--panel-border);
       position: relative;
+      background: rgba(0, 0, 0, 0.3);
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     #preview-wrap img {
       width: 100%;
-      display: block;
       max-height: 300px;
       object-fit: contain;
-      background: #000;
+      display: block;
     }
 
     .preview-remove {
       position: absolute;
-      top: 8px; right: 8px;
-      background: rgba(0,0,0,.7);
-      border: 1px solid var(--border);
-      color: var(--warn);
-      width: 28px; height: 28px;
-      border-radius: 6px;
-      font-size: 14px;
+      top: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 16px;
       cursor: pointer;
-      display: grid; place-items: center;
-      transition: background .15s;
+      display: grid;
+      place-items: center;
+      transition: all 0.2s ease;
+      z-index: 10;
     }
 
-    .preview-remove:hover { background: var(--warn); color: #fff; }
+    .preview-remove:hover {
+      background: var(--error);
+      transform: scale(1.1);
+    }
 
-    /* ── Button ── */
+    /* Button */
     .btn {
       width: 100%;
-      margin-top: 16px;
-      padding: 13px;
+      margin-top: 24px;
+      padding: 16px;
       border: none;
-      border-radius: 8px;
-      font-family: var(--mono);
-      font-size: .9rem;
-      letter-spacing: 1.5px;
+      border-radius: 12px;
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 1px;
       text-transform: uppercase;
       cursor: pointer;
-      transition: all .2s;
+      transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
       color: #000;
-      font-weight: 700;
+      box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
     }
 
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(0,229,255,.3);
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(79, 172, 254, 0.5);
+    }
+
+    .btn-primary:hover:not(:disabled)::before {
+      left: 100%;
     }
 
     .btn-primary:disabled {
-      opacity: .4;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.3);
       cursor: not-allowed;
-      transform: none;
+      box-shadow: none;
     }
 
-    /* ── Result image ── */
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: none;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    /* Result Area */
     #result-img-wrap {
-      min-height: 200px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
+      min-height: 250px;
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
       overflow: hidden;
-      background: rgba(0,0,0,.3);
+      background: rgba(0, 0, 0, 0.4);
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
     }
 
     #result-img-wrap img {
       width: 100%;
-      display: block;
-      max-height: 340px;
+      max-height: 400px;
       object-fit: contain;
-      background: #000;
+      display: block;
+      animation: fadeIn 0.5s ease;
     }
 
     .placeholder-text {
-      color: var(--muted);
-      font-family: var(--mono);
-      font-size: .8rem;
+      color: var(--text-muted);
+      font-size: 0.95rem;
       text-align: center;
       padding: 20px;
-    }
-
-    /* ── Plates result ── */
-    #plates-list {
-      margin-top: 16px;
       display: flex;
       flex-direction: column;
+      align-items: center;
       gap: 10px;
     }
 
-    .plate-card {
-      background: rgba(0,229,255,.04);
-      border: 1px solid rgba(0,229,255,.15);
-      border-radius: 8px;
-      padding: 14px 16px;
+    /* Plates List */
+    #plates-list {
+      margin-top: 24px;
       display: flex;
-      align-items: center;
-      gap: 14px;
-      animation: slideIn .3s ease forwards;
-      opacity: 0;
-      transform: translateY(8px);
+      flex-direction: column;
+      gap: 12px;
     }
 
-    @keyframes slideIn {
-      to { opacity: 1; transform: translateY(0); }
+    .plate-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      opacity: 0;
+      transform: translateX(30px);
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .plate-card:hover {
+      background: rgba(255, 255, 255, 0.06);
+      transform: translateX(5px) scale(1.01) !important;
+    }
+
+    @keyframes slideInRight {
+      to { opacity: 1; transform: translateX(0); }
     }
 
     .plate-index {
-      font-family: var(--mono);
-      font-size: .7rem;
-      color: var(--muted);
-      min-width: 32px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      background: rgba(0,0,0,0.3);
+      padding: 4px 8px;
+      border-radius: 6px;
     }
 
     .plate-number {
-      font-family: var(--mono);
-      font-size: 1.4rem;
-      color: var(--accent);
-      letter-spacing: 3px;
+      font-family: var(--font-mono);
+      font-size: 1.6rem;
+      color: #fff;
+      letter-spacing: 2px;
       font-weight: 700;
-      text-shadow: 0 0 12px rgba(0,229,255,.4);
+      text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
       flex: 1;
     }
 
     .plate-class {
-      font-family: var(--mono);
-      font-size: .68rem;
-      padding: 3px 8px;
-      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 6px;
       letter-spacing: 1px;
+      font-weight: 600;
     }
 
     .plate-class.bsd {
-      color: var(--accent2);
-      border: 1px solid var(--accent2);
-      background: rgba(0,255,157,.06);
+      color: var(--accent-1);
+      background: rgba(0, 242, 254, 0.1);
+      border: 1px solid rgba(0, 242, 254, 0.2);
     }
 
     .plate-class.bsv {
-      color: #f59e0b;
-      border: 1px solid #f59e0b;
-      background: rgba(245,158,11,.06);
+      color: var(--accent-3);
+      background: rgba(240, 147, 251, 0.1);
+      border: 1px solid rgba(240, 147, 251, 0.2);
     }
 
-    /* ── Status bar ── */
+    /* Status Alert */
     #status {
       margin-top: 20px;
-      padding: 10px 14px;
-      border-radius: 6px;
-      font-family: var(--mono);
-      font-size: .78rem;
-      letter-spacing: .5px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 500;
       display: none;
+      animation: fadeIn 0.3s ease;
     }
 
-    #status.info    { background: rgba(0,229,255,.08); color: var(--accent);  border: 1px solid rgba(0,229,255,.2); }
-    #status.success { background: rgba(0,255,157,.08); color: var(--accent2); border: 1px solid rgba(0,255,157,.2); }
-    #status.error   { background: rgba(255,77,109,.08); color: var(--warn);   border: 1px solid rgba(255,77,109,.2); }
+    #status.info {
+      background: rgba(79, 172, 254, 0.1);
+      color: var(--accent-2);
+      border: 1px solid rgba(79, 172, 254, 0.2);
+    }
 
-    /* ── Loading spinner ── */
+    #status.success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    #status.error {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--error);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
     .spinner {
-      width: 16px; height: 16px;
-      border: 2px solid transparent;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.2);
       border-top-color: currentColor;
       border-radius: 50%;
-      animation: spin .6s linear infinite;
+      animation: spin 0.8s linear infinite;
       display: inline-block;
       vertical-align: middle;
-      margin-right: 6px;
+      margin-right: 8px;
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Debug section ── */
+    /* Debug Section */
     .debug-toggle {
-      margin-top: 32px;
-      display: flex;
+      margin-top: 40px;
+      display: inline-flex;
       align-items: center;
       gap: 10px;
       cursor: pointer;
-      color: var(--muted);
-      font-family: var(--mono);
-      font-size: .75rem;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      user-select: none;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      transition: color 0.2s ease;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 30px;
+      border: 1px solid rgba(255,255,255,0.05);
     }
 
-    .debug-toggle:hover { color: var(--text); }
-
-    .debug-toggle::before {
-      content: '▶';
-      transition: transform .2s;
-      font-size: .6rem;
+    .debug-toggle:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.05);
     }
 
-    .debug-toggle.open::before { transform: rotate(90deg); }
+    .debug-toggle svg {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.3s ease;
+    }
+
+    .debug-toggle.open svg {
+      transform: rotate(180deg);
+    }
 
     #debug-section {
       display: none;
-      margin-top: 16px;
+      margin-top: 24px;
+      animation: fadeIn 0.4s ease;
     }
 
-    #debug-section.open { display: block; }
+    #debug-section.open {
+      display: block;
+    }
+
+    .debug-card {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .debug-label {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .debug-label::before {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 12px;
+      background: var(--accent-2);
+      border-radius: 2px;
+    }
+
+    .debug-plate-imgs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .debug-plate-imgs img {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: #000;
+    }
 
     .debug-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-      gap: 8px;
-      margin-top: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 12px;
     }
 
     .debug-char {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 8px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 10px;
       text-align: center;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .debug-char:hover {
+      transform: translateY(-3px);
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.1);
     }
 
     .debug-char img {
@@ -439,63 +623,42 @@
       aspect-ratio: 1;
       object-fit: contain;
       background: #000;
-      border-radius: 4px;
-      display: block;
-      margin-bottom: 6px;
+      border-radius: 6px;
+      margin-bottom: 8px;
     }
 
     .debug-char .char-pred {
-      font-family: var(--mono);
-      font-size: 1rem;
-      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
     }
 
     .debug-char .char-conf {
-      font-family: var(--mono);
-      font-size: .65rem;
-      color: var(--muted);
-      margin-top: 2px;
+      font-size: 0.75rem;
+      color: var(--accent-1);
+      margin-top: 4px;
     }
 
     .debug-char .char-size {
-      font-family: var(--mono);
-      font-size: .6rem;
-      color: var(--border);
-      margin-top: 1px;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-top: 2px;
     }
 
-    .debug-plate-imgs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .debug-plate-imgs img {
-      width: 100%;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-    }
-
-    .debug-label {
-      font-family: var(--mono);
-      font-size: .65rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 4px;
-    }
-
-    /* ── Footer ── */
+    /* Footer */
     footer {
-      margin-top: 60px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border);
+      margin-top: 80px;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255,255,255,0.05);
       text-align: center;
-      font-family: var(--mono);
-      font-size: .7rem;
-      color: var(--muted);
-      letter-spacing: 1px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    footer span {
+      color: var(--accent-1);
     }
   </style>
 </head>
@@ -504,79 +667,89 @@
 
   <!-- Header -->
   <header>
-    <div class="logo-icon">🚗</div>
-    <div class="logo-text">
-      <h1>Nhận diện biển số xe</h1>
-      <p>Vietnam License Plate Recognition</p>
+    <div class="logo-container">
+      <div class="logo-icon">🚗</div>
+      <div class="title-group">
+        <h1>Nhận diện biển số xe</h1>
+        <p>Vietnam License Plate Recognition API</p>
+      </div>
     </div>
-    <div class="badge">YOLOv8 + CNN</div>
+    <div style="margin-top: 8px;">
+      <span class="badge">YOLOv8 + CNN Architecture</span>
+    </div>
   </header>
 
   <!-- Main grid -->
   <div class="grid">
 
-    <!-- Left: Upload -->
+    <!-- Left: Upload Panel -->
     <div class="panel">
       <div class="panel-header">
-        <span class="dot"></span>
-        Input
+        <i></i> Tải ảnh lên
       </div>
-      <div class="panel-body">
+      
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" id="file-input" accept="image/*" />
+        <span class="upload-icon">📸</span>
+        <p class="main-text"><span>Chọn ảnh</span> hoặc kéo thả vào đây</p>
+        <p class="sub-text">Hỗ trợ JPG, PNG (tối đa 10MB)</p>
+      </div>
 
-        <div class="upload-zone" id="upload-zone">
-          <input type="file" id="file-input" accept="image/*" />
-          <span class="upload-icon">📷</span>
-          <p><span>Chọn ảnh</span> hoặc kéo thả vào đây</p>
-          <p style="margin-top:6px;font-size:.8rem;">JPG, PNG — tối đa 10MB</p>
-        </div>
+      <div id="preview-wrap">
+        <img id="preview-img" src="" alt="preview" />
+        <button class="preview-remove" id="remove-btn" title="Xoá ảnh">✕</button>
+      </div>
 
-        <div id="preview-wrap">
-          <img id="preview-img" src="" alt="preview" />
-          <button class="preview-remove" id="remove-btn" title="Xoá ảnh">✕</button>
-        </div>
-
-        <button class="btn btn-primary" id="predict-btn" disabled>
-          🔍 &nbsp;NHẬN DIỆN
+      <div style="display: flex; gap: 12px; margin-top: 24px;">
+        <button class="btn btn-secondary" id="change-img-btn" style="display: none; margin-top: 0; flex: 0.6; padding: 16px 10px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.21l-5.36 5.36M2.5 22v-6h6"></path></svg> Đổi ảnh
         </button>
-
-        <div id="status"></div>
-
+        <button class="btn btn-primary" id="predict-btn" disabled style="margin-top: 0; flex: 1;">
+          Nhận Diện Ngay
+        </button>
       </div>
+
+      <div id="status"></div>
     </div>
 
-    <!-- Right: Result -->
+    <!-- Right: Result Panel -->
     <div class="panel">
-      <div class="panel-header">
-        <span class="dot" style="background:var(--accent2);box-shadow:0 0 6px var(--accent2);"></span>
-        Output
+      <div class="panel-header output">
+        <i></i> Kết quả
       </div>
-      <div class="panel-body">
-
-        <div id="result-img-wrap">
-          <p class="placeholder-text">Kết quả sẽ hiển thị ở đây</p>
-        </div>
-
-        <div id="plates-list"></div>
-
+      
+      <div id="result-img-wrap">
+        <p class="placeholder-text" id="result-placeholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3; margin-bottom:10px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          Ảnh sau khi nhận diện sẽ hiển thị ở đây
+        </p>
       </div>
+
+      <div id="plates-list"></div>
     </div>
 
-  </div><!-- /grid -->
+  </div>
 
-  <!-- Debug section -->
-  <div class="debug-toggle" id="debug-toggle">Debug segment_chars</div>
+  <!-- Debug Section -->
+  <div style="text-align: center;">
+    <div class="debug-toggle" id="debug-toggle">
+      <span>Thông tin Debug phân tách ký tự</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </div>
+  </div>
+  
   <div id="debug-section">
     <div id="debug-content">
-      <p style="color:var(--muted);font-family:var(--mono);font-size:.8rem;">
-        Nhấn nhận diện trước, debug sẽ hiện kết quả phân tách ký tự tại đây.
+      <p style="text-align:center; color:var(--text-muted); font-style:italic;">
+        Vui lòng thực hiện nhận diện ảnh trước để xem thông tin debug.
       </p>
     </div>
   </div>
 
-</div><!-- /wrapper -->
+</div>
 
 <footer>
-  <p>License Plate Recognition &nbsp;·&nbsp; YOLOv8-OBB + CharCNN &nbsp;·&nbsp; Flask API</p>
+  <p>Developed with <span>YOLOv8-OBB</span> and Custom <span>CharCNN</span> &nbsp;|&nbsp; Modern UI Version</p>
 </footer>
 
 <script>
@@ -585,9 +758,11 @@
   const previewWrap = document.getElementById('preview-wrap');
   const previewImg  = document.getElementById('preview-img');
   const removeBtn   = document.getElementById('remove-btn');
+  const changeImgBtn= document.getElementById('change-img-btn');
   const predictBtn  = document.getElementById('predict-btn');
   const statusEl    = document.getElementById('status');
   const resultWrap  = document.getElementById('result-img-wrap');
+  const resultPlaceholder = document.getElementById('result-placeholder');
   const platesList  = document.getElementById('plates-list');
   const debugToggle = document.getElementById('debug-toggle');
   const debugSection= document.getElementById('debug-section');
@@ -595,34 +770,49 @@
 
   let currentFile = null;
 
-  // ── File select ──────────────────────────────────────
   fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
 
   function handleFile(file) {
     if (!file) return;
     currentFile = file;
-    const url   = URL.createObjectURL(file);
-    previewImg.src     = url;
+    const url = URL.createObjectURL(file);
+    previewImg.src = url;
     previewWrap.style.display = 'block';
+    changeImgBtn.style.display = 'block';
     predictBtn.disabled = false;
     clearStatus();
     platesList.innerHTML = '';
-    resultWrap.innerHTML = '<p class="placeholder-text">Sẵn sàng nhận diện...</p>';
+    resultWrap.innerHTML = '';
+    resultWrap.appendChild(resultPlaceholder);
+    resultPlaceholder.innerHTML = `
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3; margin-bottom:10px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      Sẵn sàng nhận diện
+    `;
+    uploadZone.style.display = 'none';
   }
 
-  // ── Remove ───────────────────────────────────────────
   removeBtn.addEventListener('click', () => {
     currentFile = null;
     fileInput.value = '';
     previewWrap.style.display = 'none';
+    changeImgBtn.style.display = 'none';
     predictBtn.disabled = true;
     platesList.innerHTML = '';
-    resultWrap.innerHTML = '<p class="placeholder-text">Kết quả sẽ hiển thị ở đây</p>';
-    debugContent.innerHTML = '<p style="color:var(--muted);font-family:var(--mono);font-size:.8rem;">Nhấn nhận diện trước.</p>';
+    resultWrap.innerHTML = '';
+    resultWrap.appendChild(resultPlaceholder);
+    resultPlaceholder.innerHTML = `
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3; margin-bottom:10px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+      Ảnh sau khi nhận diện sẽ hiển thị ở đây
+    `;
+    debugContent.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-style:italic;">Vui lòng thực hiện nhận diện ảnh trước để xem thông tin debug.</p>';
     clearStatus();
+    uploadZone.style.display = 'block';
   });
 
-  // ── Drag & drop ──────────────────────────────────────
+  changeImgBtn.addEventListener('click', () => {
+    fileInput.click();
+  });
+
   uploadZone.addEventListener('dragover',  e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
   uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
   uploadZone.addEventListener('drop', e => {
@@ -632,14 +822,15 @@
     if (file && file.type.startsWith('image/')) handleFile(file);
   });
 
-  // ── Predict ──────────────────────────────────────────
   predictBtn.addEventListener('click', async () => {
     if (!currentFile) return;
 
-    setStatus('info', '<span class="spinner"></span> Đang xử lý...');
+    setStatus('info', '<span class="spinner"></span> Đang phân tích hình ảnh...');
     predictBtn.disabled = true;
     platesList.innerHTML = '';
-    resultWrap.innerHTML = '<p class="placeholder-text"><span class="spinner"></span> Đang nhận diện...</p>';
+    resultWrap.innerHTML = '';
+    resultWrap.appendChild(resultPlaceholder);
+    resultPlaceholder.innerHTML = '<span class="spinner" style="width:24px; height:24px; margin:0 0 10px 0; border-color: rgba(255,255,255,0.1); border-top-color: var(--accent-1);"></span> Đang xử lý bằng AI...';
 
     const formData = new FormData();
     formData.append('image', currentFile);
@@ -650,20 +841,18 @@
 
       if (data.error) {
         setStatus('error', '⚠ ' + data.error);
-        resultWrap.innerHTML = '<p class="placeholder-text">Có lỗi xảy ra.</p>';
+        resultPlaceholder.innerHTML = 'Có lỗi xảy ra trong quá trình xử lý.';
       } else if (!data.plates || data.plates.length === 0) {
-        setStatus('error', '❌ Không phát hiện biển số');
-        resultWrap.innerHTML = '<p class="placeholder-text">Không tìm thấy biển số trong ảnh.</p>';
+        setStatus('error', '❌ Không phát hiện thấy biển số xe nào trong ảnh');
+        resultPlaceholder.innerHTML = 'Không tìm thấy biển số. Hãy thử ảnh khác rõ nét hơn.';
       } else {
-        // Result image
-        resultWrap.innerHTML = `<img src="${data.img_url}" alt="result" />`;
+        resultWrap.innerHTML = `<img src="${data.img_url}" alt="Kết quả nhận diện" />`;
 
-        // Plate cards
         data.plates.forEach((p, i) => {
-          const cls  = p.class.toLowerCase();
+          const cls = p.class.toLowerCase();
           const card = document.createElement('div');
           card.className = 'plate-card';
-          card.style.animationDelay = `${i * 80}ms`;
+          card.style.animationDelay = `${i * 100}ms`;
           card.innerHTML = `
             <span class="plate-index">#${p.index}</span>
             <span class="plate-number">${p.text || '—'}</span>
@@ -672,20 +861,17 @@
           platesList.appendChild(card);
         });
 
-        setStatus('success', `✔ Phát hiện ${data.plates.length} biển số`);
-
-        // Auto-run debug
+        setStatus('success', `✔ Đã phát hiện thành công ${data.plates.length} biển số`);
         runDebug(currentFile);
       }
     } catch (err) {
-      setStatus('error', '⚠ Lỗi kết nối server: ' + err.message);
-      resultWrap.innerHTML = '<p class="placeholder-text">Lỗi kết nối.</p>';
+      setStatus('error', '⚠ Lỗi kết nối tới máy chủ: ' + err.message);
+      resultPlaceholder.innerHTML = 'Lỗi kết nối mạng. Vui lòng thử lại sau.';
     }
 
     predictBtn.disabled = false;
   });
 
-  // ── Debug ────────────────────────────────────────────
   debugToggle.addEventListener('click', () => {
     debugToggle.classList.toggle('open');
     debugSection.classList.toggle('open');
@@ -705,53 +891,52 @@
   function renderDebug(data) {
     debugContent.innerHTML = '';
     data.forEach((plate, i) => {
-      const section = document.createElement('div');
-      section.style.marginBottom = '24px';
+      const card = document.createElement('div');
+      card.className = 'debug-card';
 
-      // Plate + binary images
-      section.innerHTML = `
-        <p class="debug-label" style="margin-bottom:8px;">
-          Biển ${i+1} — ${plate.plate_class} — ${plate.num_chars} ký tự tách được
-        </p>
+      card.innerHTML = `
+        <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px;">
+          <h3 style="color:#fff; font-size:1.1rem; font-weight:600;">Biển số #${i+1} <span style="color:var(--text-muted); font-size:0.9rem; font-weight:400; margin-left:8px;">(${plate.plate_class} — ${plate.num_chars} ký tự)</span></h3>
+        </div>
+        
         <div class="debug-plate-imgs">
           <div>
-            <p class="debug-label">Plate crop</p>
-            <img src="${plate.plate_url}" alt="plate" />
+            <p class="debug-label">Ảnh cắt nguyên bản (Crop)</p>
+            <img src="${plate.plate_url}" alt="plate crop" />
           </div>
           <div>
-            <p class="debug-label">Binary</p>
-            <img src="${plate.binary_url}" alt="binary" />
+            <p class="debug-label">Ảnh sau xử lý (Binary/Contrast)</p>
+            <img src="${plate.binary_url}" alt="binary processed" />
           </div>
         </div>
-        <p class="debug-label">Từng ký tự</p>
+        
+        <p class="debug-label">Kết quả tách từng ký tự</p>
       `;
 
-      // Char grid
       const grid = document.createElement('div');
       grid.className = 'debug-grid';
 
       if (!plate.chars || plate.chars.length === 0) {
-        grid.innerHTML = '<p style="color:var(--warn);font-family:var(--mono);font-size:.75rem;">Không tách được ký tự nào.</p>';
+        grid.innerHTML = '<p style="color:var(--error); font-size:0.9rem; margin-top:10px;">Không thể tách được ký tự nào từ biển số này.</p>';
       } else {
         plate.chars.forEach(c => {
-          const card = document.createElement('div');
-          card.className = 'debug-char';
-          card.innerHTML = `
+          const charItem = document.createElement('div');
+          charItem.className = 'debug-char';
+          charItem.innerHTML = `
             <img src="${c.path}" alt="${c.pred}" />
             <div class="char-pred">${c.pred}</div>
             <div class="char-conf">${c.conf}</div>
             <div class="char-size">${c.size}</div>
           `;
-          grid.appendChild(card);
+          grid.appendChild(charItem);
         });
       }
 
-      section.appendChild(grid);
-      debugContent.appendChild(section);
+      card.appendChild(grid);
+      debugContent.appendChild(card);
     });
   }
 
-  // ── Helpers ──────────────────────────────────────────
   function setStatus(type, msg) {
     statusEl.className = type;
     statusEl.innerHTML = msg;
