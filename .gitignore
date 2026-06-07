@@ -4,3 +4,6 @@ __pycache__
 venv
 git_guide.txt
 dataset/
+data.yaml
+yolov8s.pt
+yolo26n.pt
