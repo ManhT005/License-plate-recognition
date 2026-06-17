@@ -1,0 +1,15 @@
+*.pyc
+__pycache__/
+.env
+venv/
+git_guide.txt
+dataset/
+data.yaml
+yolov8s.pt
+yolo26n.pt
+myenv/
+static/debug_input.jpg
+static/debug_pts.jpg
+static/input.jpg
+static/output.jpg
+static/plate_*.jpg
