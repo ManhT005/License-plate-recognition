@@ -1,15 +1,35 @@
-*.pyc
-__pycache__/
-.env
+# --- Môi trường ảo ---
+.venv/
 venv/
-git_guide.txt
+env/
+myenv/
+.env
+
+# --- Python cache ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Cấu hình IDE & Hệ thống ---
+.vscode/
+.idea/
+.DS_Store
+
+# --- Dữ liệu & Thư mục tạm ---
+runs/
 dataset/
 data.yaml
-yolov8s.pt
-yolo26n.pt
-myenv/
+
+# --- File ảnh debug/tạm thời (từ static/) ---
 static/debug_input.jpg
 static/debug_pts.jpg
 static/input.jpg
 static/output.jpg
 static/plate_*.jpg
+
+# --- Các file khác ---
+git_guide.txt
+
+# Ghi chú: 
+# Các file model (*.pt, *.pth) đã được đưa vào Git LFS 
+# nên KHÔNG được liệt kê ở đây (không được bỏ qua).
