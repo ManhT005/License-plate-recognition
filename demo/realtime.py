@@ -10,7 +10,8 @@ from pathlib import Path
 from difflib import SequenceMatcher 
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from pipeline import crop_obb, read_chars 
+from pipeline import read_chars
+from utils import crop_obb
 
 class RealtimeProcessor:
     def __init__(self, plate_detector, char_detector, source=0, fps_limit=15):
@@ -29,12 +30,12 @@ class RealtimeProcessor:
         self.latest_frame = None
         self.fps = 0
         self.processing_time = 0
-        
         self.frame_count = 0
         self.fps_history = deque(maxlen=30)
         
         self.track_buffer = {}
-        self.finalized_plates = deque(maxlen=20) 
+        # Đổi cấu trúc lịch sử: Lưu mảng dict cố định để không bao giờ bị xóa nhầm
+        self.history = [] 
         self.time_to_live = 2.0 
         
     def start(self):
@@ -42,18 +43,16 @@ class RealtimeProcessor:
             return
         self.is_running = True
         self.track_buffer.clear()
-        self.finalized_plates.clear()
+        self.history.clear()
         
         self.capture_thread = threading.Thread(target=self._capture_frames, daemon=True)
         self.process_thread = threading.Thread(target=self._process_frames, daemon=True)
-        
         self.capture_thread.start()
         self.process_thread.start()
         
     def stop(self):
         print("Đang dừng Realtime...")
         self.is_running = False 
-        self.camera_released = False 
         
         if self.capture_thread and self.capture_thread.is_alive():
             self.capture_thread.join(timeout=3)
@@ -69,6 +68,10 @@ class RealtimeProcessor:
             
         self.track_buffer.clear()
 
+    def clear_history(self):
+        self.history.clear()
+        self.track_buffer.clear()
+
     def _capture_frames(self):
         if sys.platform.startswith('win') and isinstance(self.source, int):
              cap = cv2.VideoCapture(self.source, cv2.CAP_DSHOW)
@@ -76,7 +79,7 @@ class RealtimeProcessor:
              cap = cv2.VideoCapture(self.source)
              
         if not cap.isOpened():
-            print("❌ Không thể mở camera. Hãy kiểm tra xem camera có bị ứng dụng khác chiếm dụng không.")
+            print("❌ Không thể mở camera.")
             self.is_running = False
             return
             
@@ -84,7 +87,6 @@ class RealtimeProcessor:
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         
         print(f"✅ Camera mở | FPS: {cap.get(cv2.CAP_PROP_FPS)}")
-        
         try:
             while self.is_running:
                 ret, frame = cap.read()
@@ -94,111 +96,88 @@ class RealtimeProcessor:
                         continue
                     else:
                         break
-                try:
-                    self.frame_queue.put(frame, timeout=0.1) 
-                except queue.Full:
-                    pass
+                try: self.frame_queue.put(frame, timeout=0.1) 
+                except queue.Full: pass
         finally:
             cap.release()
-            self.camera_released = True
             
     def _process_frames(self):
         try:
             while self.is_running:
-                try:
-                    frame = self.frame_queue.get(timeout=1)
-                except queue.Empty:
-                    continue
+                try: frame = self.frame_queue.get(timeout=1)
+                except queue.Empty: continue
                     
                 start_time = time.time()
                 current_time = time.time()
-                
                 annotated_frame = frame.copy()
                 current_frame_plates = []
-                seen_tids_in_frame = set() # Bộ lọc tránh hiện 2 biển số cho cùng 1 xe trong 1 frame
+                seen_tids_in_frame = set()
                 
                 plate_results = self.plate_detector.track(source=frame, conf=0.5, persist=True, device=0, imgsz=640, verbose=False)[0]
                 
                 if plate_results.obb is not None and len(plate_results.obb) > 0:
-                    if plate_results.obb.id is not None:
-                        track_ids = plate_results.obb.id.int().cpu().tolist()
-                    else:
-                        track_ids = [None] * len(plate_results.obb)
+                    if plate_results.obb.id is not None: track_ids = plate_results.obb.id.int().cpu().tolist()
+                    else: track_ids = [None] * len(plate_results.obb)
 
                     for i, box in enumerate(plate_results.obb.xyxyxyxy):
                         tid = track_ids[i]
-                        if tid is None:
-                            continue
+                        if tid is None: continue
                             
                         pts = box.cpu().numpy().reshape(4, 2)
-                        
-                        # Tính tọa độ Tâm của biển số để dò vị trí
-                        cx = int(np.mean(pts[:, 0]))
-                        cy = int(np.mean(pts[:, 1]))
+                        cx, cy = int(np.mean(pts[:, 0])), int(np.mean(pts[:, 1]))
                         
                         plate_class = int(plate_results.obb.cls[i].item())
                         plate_img = crop_obb(frame, pts)
                         plate_text, _ = read_chars(plate_img, self.char_detector, plate_class)
                         
-                        if not plate_text or len(plate_text) < 5:
-                            continue
+                        if not plate_text or len(plate_text) < 5: continue
                             
                         cls_name = 'BSD' if plate_class == 0 else 'BSV'
                         clean_text = plate_text.replace("-", "").replace(" ", "").upper()
                         matched_tid = tid
 
                         if tid not in self.track_buffer:
-                            # 1. Khớp bằng chữ (OCR Text)
                             for active_tid, info in self.track_buffer.items():
                                 active_clean = info['best_text'].replace("-", "").replace(" ", "").upper()
                                 if SequenceMatcher(None, clean_text, active_clean).ratio() >= 0.75:
                                     matched_tid = active_tid
                                     break
                                     
-                            # 2. Khớp bằng Tọa Độ (Chống lóa/nhòe làm sai chữ)
                             if matched_tid == tid:
                                 for active_tid, info in self.track_buffer.items():
                                     if 'center' in info:
                                         last_cx, last_cy = info['center']
-                                        dist = np.sqrt((cx - last_cx)**2 + (cy - last_cy)**2)
-                                        # Nếu box mới xuất hiện cách box cũ dưới 90 pixel -> Nó chính là cái xe đó
-                                        if dist < 90:
+                                        if np.sqrt((cx - last_cx)**2 + (cy - last_cy)**2) < 90:
                                             matched_tid = active_tid
                                             break
                             
-                            # 3. Khớp với xe đi qua đi lại (Vừa chốt sổ)
+                            # Khớp với lịch sử cũ (Không xóa khỏi lịch sử nữa)
                             if matched_tid == tid:
-                                for finalized in list(self.finalized_plates):
-                                    finalized_clean = finalized['text'].replace("-", "").replace(" ", "").upper()
-                                    if SequenceMatcher(None, clean_text, finalized_clean).ratio() >= 0.80:
-                                        matched_tid = finalized['index']
+                                for past_record in reversed(self.history):
+                                    past_clean = past_record['text'].replace("-", "").replace(" ", "").upper()
+                                    if SequenceMatcher(None, clean_text, past_clean).ratio() >= 0.80:
+                                        matched_tid = past_record['index']
                                         self.track_buffer[matched_tid] = {
-                                            'text_history': {finalized['text']: 5}, 
-                                            'best_text': finalized['text'],
-                                            'max_len': len(finalized['text']),
+                                            'text_history': {past_record['text']: 5}, 
+                                            'best_text': past_record['text'],
+                                            'max_len': len(past_record['text']),
                                             'last_seen': current_time,
-                                            'first_seen': current_time - 2.0,
+                                            'first_seen': current_time - 1.5,
                                             'center': (cx, cy),
-                                            'data': finalized
+                                            'data': past_record
                                         }
-                                        if finalized in self.finalized_plates:
-                                            self.finalized_plates.remove(finalized)
                                         break
 
-                        # Bộ lọc Không gian: Nếu trong cùng 1 frame, AI nhìn nhầm 1 biển thành 2 biển -> Chặn lại chỉ cho vẽ 1 cái
-                        if matched_tid in seen_tids_in_frame:
-                            continue
+                        if matched_tid in seen_tids_in_frame: continue
                         seen_tids_in_frame.add(matched_tid)
 
-                        # Bầu chọn và cập nhật
                         if matched_tid in self.track_buffer:
                             self.track_buffer[matched_tid]['last_seen'] = current_time
-                            self.track_buffer[matched_tid]['center'] = (cx, cy) # Liên tục cập nhật tọa độ tâm mới nhất
+                            self.track_buffer[matched_tid]['center'] = (cx, cy)
                             
-                            history = self.track_buffer[matched_tid]['text_history']
-                            history[plate_text] = history.get(plate_text, 0) + 1
-                            
-                            best_text = max(history.keys(), key=lambda k: (history[k], len(k)))
+                            history_dict = self.track_buffer[matched_tid]['text_history']
+                            history_dict[plate_text] = history_dict.get(plate_text, 0) + 1
+                            best_text = max(history_dict.keys(), key=lambda k: (history_dict[k], len(k)))
                             
                             self.track_buffer[matched_tid]['best_text'] = best_text
                             self.track_buffer[matched_tid]['max_len'] = len(best_text)
@@ -214,16 +193,26 @@ class RealtimeProcessor:
                                 'data': {'index': tid, 'class': cls_name, 'text': plate_text}
                             }
 
-                        current_frame_plates.append(self.track_buffer[matched_tid]['data'])
+                        best_data = self.track_buffer[matched_tid]
+                        
+                        # 🔴 PUBLISH SỚM VÀO LỊCH SỬ SAU 1 GIÂY XUẤT HIỆN
+                        if current_time - best_data['first_seen'] >= 1.0 and best_data['max_len'] >= 5:
+                            existing = next((item for item in self.history if item['index'] == matched_tid), None)
+                            if existing:
+                                existing['text'] = best_data['best_text']
+                                existing['class'] = cls_name
+                            else:
+                                self.history.append({'index': matched_tid, 'class': cls_name, 'text': best_data['best_text']})
+                                if len(self.history) > 20: self.history.pop(0)
+
+                        current_frame_plates.append(best_data['data'])
 
                         pts_int = pts.astype(int)
-                        label = f"ID:{matched_tid} [{cls_name}] {self.track_buffer[matched_tid]['best_text']}"
-                        
+                        label = f"ID:{matched_tid} [{cls_name}] {best_data['best_text']}"
                         cv2.polylines(annotated_frame, [pts_int], True, (0, 255, 0), 2)
                         text_size, _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)
                         text_org = (pts_int[:, 0].min(), max(pts_int[:, 1].min() - 15, 20))
-                        cv2.rectangle(annotated_frame, (text_org[0] - 4, text_org[1] - text_size[1] - 4),
-                                      (text_org[0] + text_size[0] + 4, text_org[1] + 4), (0, 255, 0), cv2.FILLED)
+                        cv2.rectangle(annotated_frame, (text_org[0] - 4, text_org[1] - text_size[1] - 4), (text_org[0] + text_size[0] + 4, text_org[1] + 4), (0, 255, 0), cv2.FILLED)
                         cv2.putText(annotated_frame, label, text_org, cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 2)
 
                 # Dọn dẹp
@@ -231,22 +220,21 @@ class RealtimeProcessor:
                     if current_time - self.track_buffer[tid]['last_seen'] > self.time_to_live:
                         best_data = self.track_buffer[tid]
                         if best_data['max_len'] >= 6:
-                            self.finalized_plates.append(best_data['data'])
+                            existing = next((item for item in self.history if item['index'] == tid), None)
+                            if not existing:
+                                self.history.append({'index': tid, 'class': best_data['data']['class'], 'text': best_data['best_text']})
+                                if len(self.history) > 20: self.history.pop(0)
                         del self.track_buffer[tid]
                 
                 processing_time = time.time() - start_time
                 self.frame_count += 1
-                if self.frame_count % 10 == 0:
-                    fps = 10 / sum(self.fps_history) if self.fps_history else 0
-                    self.fps = fps
-                    
+                if self.frame_count % 10 == 0: self.fps = 10 / sum(self.fps_history) if self.fps_history else 0
                 self.fps_history.append(processing_time)
                 self.processing_time = processing_time
-                
                 self.latest_frame = annotated_frame
                 self.latest_result = {
                     'plates': current_frame_plates,                  
-                    'finalized_plates': list(self.finalized_plates), 
+                    'finalized_plates': list(self.history), 
                     'frame': annotated_frame,
                     'fps': self.fps,
                     'processing_time': f"{processing_time*1000:.1f}ms",
@@ -259,23 +247,18 @@ class RealtimeProcessor:
                         self.result_queue.get_nowait()
                         self.result_queue.put_nowait(self.latest_result)
                     except: pass
-                        
         except Exception as e:
             print(f"❌ Error in processing: {e}")
             
-    def get_latest_result(self):
-        return self.latest_result
+    def get_latest_result(self): return self.latest_result
         
     def get_frame_for_stream(self, scale=1.0):
-        if self.latest_frame is None:
-            return None
+        if self.latest_frame is None: return None
         frame = self.latest_frame.copy()
         if scale != 1.0:
             h, w = frame.shape[:2]
             frame = cv2.resize(frame, (int(w*scale), int(h*scale)))
-            
-        fps_text = f"FPS: {self.fps:.1f} | Processing: {self.processing_time*1000:.1f}ms | Buffer: {len(self.track_buffer)}"
-        cv2.putText(frame, fps_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+        cv2.putText(frame, f"FPS: {self.fps:.1f} | Buffer: {len(self.track_buffer)}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
         return frame
 
 class VideoStreamGenerator:
@@ -283,13 +266,11 @@ class VideoStreamGenerator:
         self.processor = processor
         self.scale = scale
         self.quality = quality
-        
     def generate(self):
         boundary = b'--frame\r\n'
         while self.processor.is_running:
             frame = self.processor.get_frame_for_stream(self.scale)
-            if frame is None:
-                continue
+            if frame is None: continue
             ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, self.quality])
             if not ret: continue
             frame_bytes = buffer.tobytes()
@@ -300,11 +281,9 @@ class SimpleJPEGGenerator:
         self.processor = processor
         self.scale = scale
         self.quality = quality
-        
     def get_jpeg(self):
         frame = self.processor.get_frame_for_stream(self.scale)
-        if frame is None:
-            return None
+        if frame is None: return None
         ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, self.quality])
         if not ret: return None
         return buffer.tobytes()
