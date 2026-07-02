@@ -1,0 +1,34 @@
+# --- Môi trường ảo ---
+.venv/
+venv/
+env/
+myenv/
+.env
+
+# --- Python cache ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Cấu hình IDE & Hệ thống ---
+.vscode/
+.idea/
+.DS_Store
+
+# --- Dữ liệu & Thư mục tạm ---
+runs/
+dataset/
+data.yaml
+
+# --- Bỏ qua toàn bộ thư mục src ---
+src/
+
+# --- Bỏ qua toàn bộ thư mục chứa file tạm/cache tĩnh ---
+demo/static/
+
+# --- Các file khác ---
+git_guide.txt
+
+# Ghi chú: 
+# Các file model (*.pt, *.pth) đã được đưa vào Git LFS 
+# nên KHÔNG được liệt kê ở đây (không được bỏ qua).

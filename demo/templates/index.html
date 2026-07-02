@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nhận diện biển số xe VN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/templates/index.css" />
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <div class="logo-container">
+      <div class="logo-icon">🚗</div>
+      <div class="title-group">
+        <h1>Nhận diện biển số xe</h1>
+        <p>Vietnam License Plate Recognition API</p>
+      </div>
+    </div>
+    <div style="margin-top: 8px;">
+      <span class="badge">YOLOv8 + CNN Architecture</span>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <div class="panel">
+      <div class="panel-header">
+        <i></i> Tải ảnh/video lên
+      </div>
+      
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" id="file-input" accept="image/*,video/mp4,video/webm" />
+        <span class="upload-icon">📸</span>
+        <p class="main-text"><span>Chọn file</span> hoặc kéo thả vào đây</p>
+        <p class="sub-text">Hỗ trợ Ảnh (JPG, PNG) & Video (MP4, WEBM)</p>
+      </div>
+
+      <div id="preview-wrap">
+        <img id="preview-img" src="" alt="preview" />
+        <video id="preview-video" controls style="display:none; width: 100%; max-height: 300px; border-radius: 8px;"></video>
+        <button class="preview-remove" id="remove-btn" title="Xoá file">✕</button>
+      </div>
+
+      <div style="display: flex; gap: 12px; margin-top: 24px;">
+        <button class="btn btn-secondary" id="change-img-btn" style="display: none; margin-top: 0; flex: 0.6; padding: 16px 10px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.21l-5.36 5.36M2.5 22v-6h6"></path></svg> Đổi file
+        </button>
+        <button class="btn btn-primary" id="predict-btn" disabled style="margin-top: 0; flex: 1;">
+          Nhận Diện Ngay
+        </button>
+      </div>
+
+      <div id="status"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header output">
+        <i></i> Kết quả
+      </div>
+      
+      <div id="result-img-wrap">
+        <p class="placeholder-text" id="result-placeholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3; margin-bottom:10px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          Ảnh hoặc dòng thời gian video sẽ hiển thị ở đây
+        </p>
+      </div>
+
+      <div id="plates-list"></div>
+    </div>
+
+  </div>
+
+  <!-- Thông tin Debug phân tách ký tự được chuyển lên trên Realtime -->
+  <div style="text-align: center; margin-top: 40px;">
+    <div class="debug-toggle" id="debug-toggle">
+      <span>Thông tin Debug phân tách ký tự</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </div>
+  </div>
+  
+  <div id="debug-section">
+    <div id="debug-content">
+      <p style="text-align:center; color:var(--text-muted); font-style:italic;">
+        Vui lòng thực hiện nhận diện ảnh tĩnh trước để xem thông tin debug ký tự chi tiết.
+      </p>
+    </div>
+  </div>
+
+  <div class="realtime-panel panel">
+    <div class="panel-header">
+      <i></i> Realtime Nhận Diện Từ Webcam
+    </div>
+    
+    <div class="realtime-container">
+      <div>
+        <div class="video-box">
+          <img id="video-stream" alt="Live stream" style="display:none;" />
+          <div class="video-placeholder" id="video-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 7l-7 5 7 5V7z"></path>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+            </svg>
+            <span>Nhấn "Bắt đầu" để xem video</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="realtime-stats">
+          <div class="stat-item">
+            <div class="stat-label">Frame Rate</div>
+            <div class="stat-value fps" id="stat-fps">0.0</div>
+            <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">fps</div>
+          </div>
+
+          <div class="stat-item">
+            <div class="stat-label">Processing Time</div>
+            <div class="stat-value time" id="stat-time">0ms</div>
+          </div>
+
+          <div class="stat-item">
+            <div class="stat-label">Frame Count</div>
+            <div class="stat-value count" id="stat-frames">0</div>
+          </div>
+
+          <div class="stat-item">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="stat-label" style="margin-bottom: 4px;">Detected Plates</div>
+                <div style="color:var(--text-muted); font-size:0.9rem;">Biển số phát hiện gần đây:</div>
+              </div>
+              <button id="btn-clear-history" style="background: rgba(239, 68, 68, 0.1); color: var(--error); border: 1px solid rgba(239, 68, 68, 0.3); padding: 4px 10px; border-radius: 8px; cursor: pointer; font-size: 0.75rem; transition: all 0.2s;">
+                ✕ Xóa lịch sử
+              </button>
+            </div>
+            <div class="realtime-results" id="realtime-results">
+              <p style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:10px;">Chưa phát hiện</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="realtime-controls">
+          <button class="btn-realtime start" id="btn-start-realtime">
+            <span class="btn-status"></span> Bắt đầu
+          </button>
+          <button class="btn-realtime stop" id="btn-stop-realtime" disabled>
+            <span class="btn-status"></span> Dừng
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p>Developed with <span>YOLOv8-OBB</span> and Custom <span>CharCNN</span> &nbsp;|&nbsp; Modern UI Version</p>
+</footer>
+
+<script src="/templates/index.js"></script>
+</body>
+</html>
