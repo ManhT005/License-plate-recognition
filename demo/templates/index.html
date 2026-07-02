@@ -660,12 +660,222 @@
     footer span {
       color: var(--accent-1);
     }
+
+    /* Realtime Section */
+    .realtime-panel {
+      margin-top: 40px;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .realtime-container {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 1100px) {
+      .realtime-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .video-box {
+      background: var(--panel-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--panel-border);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      aspect-ratio: 16 / 9;
+      position: relative;
+    }
+
+    #video-stream {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+      display: block;
+    }
+
+    .video-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, rgba(0,0,0,0.8), rgba(20,20,30,0.9));
+      color: var(--text-muted);
+      font-size: 1rem;
+      gap: 16px;
+    }
+
+    .video-placeholder svg {
+      width: 64px;
+      height: 64px;
+      opacity: 0.5;
+    }
+
+    .realtime-stats {
+      background: var(--panel-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--panel-border);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .stat-item {
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .stat-item:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--accent-1);
+      letter-spacing: 2px;
+    }
+
+    .stat-value.fps { color: var(--accent-2); }
+    .stat-value.time { color: var(--accent-3); }
+    .stat-value.count { color: var(--accent-4); }
+
+    .realtime-results {
+      margin-top: 16px;
+      max-height: 200px;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+
+    .realtime-results::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .realtime-results::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+    }
+
+    .realtime-results::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 10px;
+    }
+
+    .realtime-results::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.25);
+    }
+
+    .realtime-plate-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: var(--accent-2);
+      transition: transform 0.2s ease, background 0.2s ease;
+      cursor: default;
+    }
+
+    .realtime-plate-item:hover {
+      background: rgba(255,255,255,0.06);
+      transform: translateX(4px);
+    }
+
+    .realtime-controls {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn-realtime {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 12px;
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-realtime.start {
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      color: #000;
+      box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+    }
+
+    .btn-realtime.start:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(79, 172, 254, 0.5);
+    }
+
+    .btn-realtime.stop {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--error);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-realtime.stop:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.25);
+      transform: translateY(-2px);
+    }
+
+    .btn-realtime:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .btn-status {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 6px;
+      background: var(--error);
+      box-shadow: 0 0 8px var(--error);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .btn-status.active {
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
   </style>
 </head>
 <body>
 <div class="wrapper">
 
-  <!-- Header -->
   <header>
     <div class="logo-container">
       <div class="logo-icon">🚗</div>
@@ -679,10 +889,8 @@
     </div>
   </header>
 
-  <!-- Main grid -->
   <div class="grid">
 
-    <!-- Left: Upload Panel -->
     <div class="panel">
       <div class="panel-header">
         <i></i> Tải ảnh lên
@@ -712,7 +920,6 @@
       <div id="status"></div>
     </div>
 
-    <!-- Right: Result Panel -->
     <div class="panel">
       <div class="panel-header output">
         <i></i> Kết quả
@@ -730,8 +937,72 @@
 
   </div>
 
-  <!-- Debug Section -->
-  <div style="text-align: center;">
+  <div class="realtime-panel panel">
+    <div class="panel-header">
+      <i></i> Realtime Nhận Diện Từ Webcam
+    </div>
+    
+    <div class="realtime-container">
+      <div>
+        <div class="video-box">
+          <img id="video-stream" alt="Live stream" />
+          <div class="video-placeholder" id="video-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 7l-7 5 7 5V7z"></path>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+            </svg>
+            <span>Nhấn "Bắt đầu" để xem video</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="realtime-stats">
+          <div class="stat-item">
+            <div class="stat-label">Frame Rate</div>
+            <div class="stat-value fps" id="stat-fps">0.0</div>
+            <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">fps</div>
+          </div>
+
+          <div class="stat-item">
+            <div class="stat-label">Processing Time</div>
+            <div class="stat-value time" id="stat-time">0ms</div>
+          </div>
+
+          <div class="stat-item">
+            <div class="stat-label">Frame Count</div>
+            <div class="stat-value count" id="stat-frames">0</div>
+          </div>
+
+          <div class="stat-item">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+              <div>
+                <div class="stat-label" style="margin-bottom: 4px;">Detected Plates</div>
+                <div style="color:var(--text-muted); font-size:0.9rem;">Biển số phát hiện gần đây:</div>
+              </div>
+              <button id="btn-clear-history" style="background: rgba(239, 68, 68, 0.1); color: var(--error); border: 1px solid rgba(239, 68, 68, 0.3); padding: 4px 10px; border-radius: 8px; cursor: pointer; font-size: 0.75rem; transition: all 0.2s;">
+                ✕ Xóa lịch sử
+              </button>
+            </div>
+            <div class="realtime-results" id="realtime-results">
+              <p style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:10px;">Chưa phát hiện</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="realtime-controls">
+          <button class="btn-realtime start" id="btn-start-realtime">
+            <span class="btn-status"></span> Bắt đầu
+          </button>
+          <button class="btn-realtime stop" id="btn-stop-realtime" disabled>
+            <span class="btn-status"></span> Dừng
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 40px;">
     <div class="debug-toggle" id="debug-toggle">
       <span>Thông tin Debug phân tách ký tự</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -947,6 +1218,157 @@
     statusEl.style.display = 'none';
     statusEl.innerHTML = '';
   }
+
+ /* ─── REALTIME FUNCTIONALITY ─────────────────────────── */
+
+  const videoStream = document.getElementById('video-stream');
+  const videoPlaceholder = document.getElementById('video-placeholder');
+  const btnStart = document.getElementById('btn-start-realtime');
+  const btnStop = document.getElementById('btn-stop-realtime');
+  const statFps = document.getElementById('stat-fps');
+  const statTime = document.getElementById('stat-time');
+  const statFrames = document.getElementById('stat-frames');
+  const resultsContainer = document.getElementById('realtime-results');
+
+  let isRealtimeRunning = false;
+  let pollingActive = false;
+  let plateHistory = []; // Mảng lưu lịch sử biển số
+  const btnClearHistory = document.getElementById('btn-clear-history');
+
+  // Xử lý sự kiện bấm nút Xóa
+  if(btnClearHistory) {
+      btnClearHistory.addEventListener('click', () => {
+          plateHistory = []; // Xóa trắng mảng
+          resultsContainer.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:10px;">Chưa phát hiện</p>';
+      });
+  }
+
+  btnStart.addEventListener('click', async () => {
+    try {
+      setStatus('info', '<span class="spinner"></span> Khởi động camera...');
+      const res = await fetch('/realtime/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: 0, fps_limit: 15 })
+      });
+      
+      if (!res.ok) {
+        const err = await res.json();
+        setStatus('error', '⚠ ' + (err.error || 'Không thể khởi động'));
+        return;
+      }
+
+      isRealtimeRunning = true;
+      pollingActive = true;
+      btnStart.disabled = true;
+      btnStop.disabled = false;
+      setStatus('success', '✔ Camera đang chạy');
+
+      pollVideoFrame();
+      pollStats();
+    } catch (err) {
+      setStatus('error', '⚠ Lỗi kết nối: ' + err.message);
+    }
+  });
+
+  btnStop.addEventListener('click', async () => {
+    btnStop.disabled = true; 
+    setStatus('info', '<span class="spinner"></span> Đang dừng camera...');
+    
+    try {
+      const res = await fetch('/realtime/stop', { method: 'POST' });
+      if (res.ok) {
+        stopRealtime();
+        setStatus('success', '✔ Camera đã dừng');
+      } else {
+         setStatus('error', '⚠ Có lỗi khi dừng camera từ server');
+         stopRealtime();
+      }
+    } catch (err) {
+      setStatus('error', '⚠ Lỗi kết nối khi dừng: ' + err.message);
+      stopRealtime(); 
+    }
+  });
+
+  function stopRealtime() {
+    isRealtimeRunning = false;
+    pollingActive = false;
+    btnStart.disabled = false;
+    btnStop.disabled = true;
+    
+    setTimeout(() => {
+        videoStream.src = '';
+        videoStream.style.display = 'none';
+        videoPlaceholder.style.display = 'flex';
+    }, 500);
+  }
+
+  async function pollVideoFrame() {
+    if (!isRealtimeRunning || !pollingActive) return;
+    
+    try {
+      const res = await fetch('/video_frame');
+      if (!res.ok) {
+         if(res.status !== 500) throw new Error('Server ngắt kết nối stream');
+      } else {
+          const blob = await res.blob();
+          if (blob.size > 0) {
+              const url = URL.createObjectURL(blob);
+              videoStream.style.display = 'block';
+              videoPlaceholder.style.display = 'none';
+              videoStream.onload = () => URL.revokeObjectURL(url);
+              videoStream.src = url;
+          }
+      }
+    } catch (err) {
+      console.warn('Lấy frame thất bại:', err);
+    }
+    
+    if (pollingActive) setTimeout(pollVideoFrame, 30);
+  }
+
+  async function pollStats() {
+    if (!isRealtimeRunning || !pollingActive) return;
+
+    try {
+      const res = await fetch('/realtime/results');
+      if (res.ok) {
+          const data = await res.json();
+          statFps.textContent = (data.fps || 0).toFixed(1);
+          statTime.textContent = (data.processing_time || '0ms');
+          statFrames.textContent = (data.frame_count || 0);
+
+          // Thêm vào lịch sử thay vì ghi đè
+          if (data.plate_texts && data.plate_texts.length > 0) {
+            data.plate_texts.filter(p => p).forEach(newPlate => {
+                // LOGIC MỚI: Kiểm tra xem biển số này đã có mặt trong TOÀN BỘ lịch sử chưa
+                if (!plateHistory.includes(newPlate)) {
+                    plateHistory.push(newPlate);
+                    // Giới hạn lưu 50 biển khác nhau gần nhất để web không bị lag
+                    if (plateHistory.length > 50) plateHistory.shift(); 
+                }
+            });
+          }
+
+          // Cập nhật giao diện: Nếu có lịch sử thì hiển thị (đảo ngược mảng để biển mới nhất lên đầu)
+          if (plateHistory.length > 0) {
+            resultsContainer.innerHTML = [...plateHistory].reverse()
+              .map(p => `<div class="realtime-plate-item">${p}</div>`)
+              .join('');
+          }
+      }
+    } catch (err) {
+      console.warn('Lấy stats thất bại:', err);
+    }
+
+    if (pollingActive) setTimeout(pollStats, 500);
+  }
+
+  window.addEventListener('beforeunload', async () => {
+    if (isRealtimeRunning) {
+      try { await fetch('/realtime/stop', { method: 'POST', keepalive: true }); } catch {}
+    }
+  });
 </script>
 </body>
 </html>
