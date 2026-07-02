@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual env
+venv/
+env/
+.bienso/
+.conda/
+
+# VSCode
+.vscode/
+
+# Dataset
+dataset/
+
+# Model
+model/
+
+# Images
+*.png
+*.jpg
+
+# OS
+.DS_Store
+Thumbs.db
